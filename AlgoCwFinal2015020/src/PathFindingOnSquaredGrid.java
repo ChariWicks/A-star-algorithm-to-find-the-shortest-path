@@ -1,4 +1,5 @@
 import java.awt.*;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.PriorityQueue;
 import java.util.Scanner;
@@ -8,11 +9,13 @@ import java.util.Scanner;
  */
 public class PathFindingOnSquaredGrid {
 
-    static int Ai; //x coordinate of the starting point
-    static int Aj; //y coordinate of the starting point
-    static int Bi; //x coordinate of the ending point
-    static int Bj; //y coordinate of the ending point
+    static int Ai; //y coordinate of the starting point
+    static int Aj; //x coordinate of the starting point
+    static int Bi; //y coordinate of the ending point
+    static int Bj; //x coordinate of the ending point
     static String pathChoice;
+    
+    private static DecimalFormat decimal2 = new DecimalFormat(".##");
 
 
     //static PriorityQueue<cell> closedList; //list of squares that need not to look at again
@@ -154,14 +157,10 @@ public class PathFindingOnSquaredGrid {
 
         // The following will generate a 10x10 squared grid with relatively few obstacles in it
         // The lower the second parameter, the more obstacles (black cells) are generated
-        boolean[][] randomlyGenMatrix = random(10, .8);
+        boolean[][] randomlyGenMatrix = random(10, .6);
 
         StdArrayIO.print(randomlyGenMatrix);
         show(randomlyGenMatrix, true);
-
-
-
-        if(percolates(randomlyGenMatrix)){
 
             System.out.println();
             System.out.println("The system percolates: " + percolates(randomlyGenMatrix));
@@ -211,42 +210,58 @@ public class PathFindingOnSquaredGrid {
            // for (AStar.cell Cell : path) {
              //   StdDraw.circle(Cell.y, randomlyGenMatrix.length - Cell.x - 1, .5);
             //}
+        
+            
+        AStar.cell astarEn = AStar.cellBoard[Bi][Bj];
+        double mCost = astarEn.totalValue; //total movement cost
+        double tCost = 0.0; //total cost
+        double numberOfCells = 0.0; //total number of cells in the shortest path
+        
+        StdDraw.setPenColor(Color.red);
+        //StdDraw.point(AStar.cellBoard[Bi][Bj].xCell, AStar.cellBoard[Bi][Bj].yCell);
+        StdDraw.square(AStar.cellBoard[Bi][Bj].xCell, randomlyGenMatrix.length-AStar.cellBoard[Bi][Bj].yCell-1, 0.4);
+        StdDraw.filledCircle(AStar.cellBoard[Ai][Aj].xCell, randomlyGenMatrix.length-AStar.cellBoard[Ai][Aj].yCell-1, 0.4);
+            
+        StdDraw.setPenColor(Color.green);
 
-            int squareCount =0;
+        for (AStar.cell Cell : path) {
+            StdDraw.filledSquare(Cell.xCell, 10 - Cell.yCell - 1, .5);
+        }
+        
+       if(pathChoice.equalsIgnoreCase("M")){
+            
+                    StdDraw.setPenColor(Color.RED);
+        StdDraw.setPenRadius(0.01);
 
-            if (AStar.cellBoard[Bi][Bj].parentCell != null) {
-                AStar.cell astarPa = AStar.cellBoard[Bi][Bj].parentCell;
-                StdDraw.setPenColor(Color.green);
-                StdDraw.filledSquare(AStar.cellBoard[Bi][Bj].y, AStar.arraySize - AStar.cellBoard[Bi][Bj].x -1, .5);
-                while (astarPa.parentCell != null) {
-                    StdDraw.filledSquare(astarPa.y, AStar.arraySize - astarPa.x -1, .5);
-                    astarPa = astarPa.parentCell;
-                    squareCount++;
-                }
-                StdDraw.filledSquare(AStar.cellBoard[Ai][Aj].y, AStar.arraySize - AStar.cellBoard[Ai][Aj].x -1, .5);
-                //StdDraw.point(AStar.cellBoard[Ai][Aj].x, AStar.cellBoard[Ai][Aj].y);
-                //StdDraw.line(AStar.cellBoard[Ai][Aj].x, AStar.cellBoard[Ai][Aj].y, AStar.cellBoard[Bi][Bj].x, AStar.cellBoard[Bi][Bj].y);
+        for (AStar.cell Cell : path) {
+            try{
+                StdDraw.line(Cell.xCell, randomlyGenMatrix.length - Cell.yCell - 1, Cell.parentCell.xCell,randomlyGenMatrix.length - Cell.parentCell.yCell-1  );
+            }catch(NullPointerException nullPointer){
+                
             }
+            
+        }
+            
+        }
+        
 
-            System.out.println("Total cost : " + (squareCount + 2));
+        
+        for (AStar.cell Cell : path) {
+            tCost = tCost + Cell.totalValue;
+            //System.out.println(t);
+            numberOfCells++;
+        }
+        
+        StdDraw.filledSquare(AStar.cellBoard[Bi][Bj].xCell, randomlyGenMatrix.length-AStar.cellBoard[Bi][Bj].yCell-1, 0.2);
+        StdDraw.filledCircle(AStar.cellBoard[Ai][Aj].xCell, randomlyGenMatrix.length-AStar.cellBoard[Ai][Aj].yCell-1, 0.2);
+
+        System.out.println("Number of cells in the path : " + numberOfCells);
+        System.out.println("Total movement cost of the shortest path : " + decimal2.format(mCost));
+        System.out.println("Total cost (Fcost of the cells in shortest path) : " + decimal2.format(tCost));
 
             StdOut.println("Elapsed time = " + timerFlow.elapsedTime());
 
 
-
-
-
-
-
-
-        }else{
-            System.out.println();
-            System.out.println("The system percolates: " + percolates(randomlyGenMatrix));
-
-            System.out.println();
-            System.out.println("The system percolates directly: " + percolatesDirect(randomlyGenMatrix));
-            System.out.println();
-        }
 
 
     }
